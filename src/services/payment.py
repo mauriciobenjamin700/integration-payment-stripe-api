@@ -1,6 +1,9 @@
 import stripe
-from src.schemas.payment import CancelPaymentIntentResponse, PaymentIntentCreate, PaymentIntentResponse
-from src.schemas.customer import CustomerCreate, CustomerResponse
+from src.schemas.payment import (
+    CancelPaymentIntentResponse, 
+    PaymentIntentCreate, 
+    PaymentIntentResponse
+)
 from src.core import settings
 
 # Configurar Stripe
@@ -14,51 +17,40 @@ class PaymentService:
         """Create a payment intent with Stripe."""
         try:
             intent = stripe.PaymentIntent.create(
-                amount=data.amount,
-                currency=data.currency,
-                automatic_payment_methods=data.automatic_payment_methods,
-                metadata={
-                    "integration": "custom-payment-api"
-                }
+                **data.to_dict(),
             )
-            data = {
-                'id': intent.id,
-                'client_secret': intent.client_secret,
-                'status': intent.status,
-                'amount': intent.amount,
-                'currency': intent.currency,
-                'created_at': intent.created,
-            }
-            return PaymentIntentResponse(**data)
+            intent.created
+            return PaymentIntentResponse.model_validate(intent, from_attributes=True)
         except Exception as e:
             # Non-Stripe error
             raise Exception(f"Unexpected error: {str(e)}")
-    
-    @staticmethod
-    def create_customer(data: CustomerCreate) -> CustomerResponse:
-        """Create a customer in Stripe."""
-        try:
-            customer = stripe.Customer.create(**data.to_dict())
-            return CustomerResponse.model_validate(customer, from_attributes=True)
-        except Exception as e:
-            raise Exception(f"Error creating customer: {str(e)}")
     
     @staticmethod
     def retrieve_payment_intent(payment_intent_id: str) -> PaymentIntentResponse:
         """Retrieve a payment intent by ID."""
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-            data = {
-                'id': intent.id,
-                'client_secret': intent.client_secret,
-                'status': intent.status,
-                'amount': intent.amount,
-                'currency': intent.currency,
-                'created_at': intent.created,
-            }
-            return PaymentIntentResponse(**data)
+            return PaymentIntentResponse.model_validate(intent, from_attributes=True)
         except Exception as e:
             raise Exception(f"Error retrieving payment intent: {str(e)}")
+        
+    @staticmethod
+    def get_payment_intent_by_user_id(user_id: str, limit: int = 1) -> PaymentIntentResponse:
+        """Retrieve a payment intent by user ID."""
+        try:
+            # Assuming metadata contains user_id
+            result = stripe.PaymentIntent.search(
+                limit=limit,
+                query=f'metadata["user_id"]:"{user_id}"',
+            )
+            
+            return [
+                PaymentIntentResponse.model_validate(intent, from_attributes=True)
+                for intent in result.data
+            ]
+            
+        except Exception as e:
+            raise Exception(f"Error retrieving payment intent by user ID: {str(e)}")
     
     @staticmethod
     def cancel_payment_intent(payment_intent_id: str) -> CancelPaymentIntentResponse:

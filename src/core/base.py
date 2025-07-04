@@ -39,8 +39,6 @@ class BaseSchema(BaseModel):
     
     model_config = ConfigDict(
         extra="ignore",  # Disallow extra fields if use forbid
-        validate_assignment=True,  # Validate assignments to model fields
-        protected_namespaces=(),  # No protected namespaces
         use_enum_values=True,  # Use enum values in serialization
         from_attributes=True,  # Allow model creation from attributes
     )

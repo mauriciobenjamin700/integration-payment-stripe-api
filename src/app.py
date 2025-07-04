@@ -38,6 +38,15 @@ async def get_payment_intent(payment_intent_id: str) -> PaymentIntentResponse:
         return result
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+@app.get("/payment-intents/user/{user_id}")
+async def get_payment_intent_by_user_id(user_id: str, limit: int = 1) -> list[PaymentIntentResponse]:
+    """Retrieve payment intents by user ID."""
+    try:
+        result = PaymentService.get_payment_intent_by_user_id(user_id, limit)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/payment-intents/{payment_intent_id}/cancel")
 async def cancel_payment_intent(payment_intent_id: str) -> CancelPaymentIntentResponse:
@@ -45,30 +54,6 @@ async def cancel_payment_intent(payment_intent_id: str) -> CancelPaymentIntentRe
     try:
         result = PaymentService.cancel_payment_intent(payment_intent_id)
         return result
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@app.post("/customers")
-async def create_customer(data: CustomerCreate) -> CustomerResponse:
-    """Create a customer."""
-    try:
-        result = PaymentService.create_customer(data)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@app.post("/webhooks")
-async def handle_webhook(
-    request: Request,
-    stripe_signature: str = Header(None, alias="stripe-signature")
-):
-    """Handle Stripe webhooks."""
-    payload = await request.body()
-    
-    try:
-        event = WebhookService.verify_webhook_signature(payload, stripe_signature)
-        result = WebhookService.handle_webhook_event(event)
-        return {"received": True, "processed": result}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

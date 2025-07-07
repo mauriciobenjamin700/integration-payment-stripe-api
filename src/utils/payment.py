@@ -120,3 +120,42 @@ class PaymentMethodTypeEnum(BaseEnum):
     US_BANK_ACCOUNT = "us_bank_account"
     WECHAT_PAY = "wechat_pay"
     ZIP = "zip"
+
+
+class SubscriptionInterval(BaseEnum):
+    """
+    Enum for subscription intervals.
+
+    Attributes:
+        MONTH: Monthly subscription.
+        YEAR: Yearly subscription.
+        WEEK: Weekly subscription.
+        DAY: Daily subscription.
+    """
+    MONTH = "month"
+    YEAR = "year"
+    WEEK = "week"
+    DAY = "day"
+
+
+class SubscriptionStatus(BaseEnum):
+    """
+    Enum for subscription statuses.
+
+    Attributes:
+        ACTIVE: Subscription is active.
+        CANCELED: Subscription is canceled.
+        PAST_DUE: Subscription is past due.
+        UNPAID: Subscription is unpaid.
+        TRIALING: Subscription is in trial period.
+        INCOMPLETE: Subscription is incomplete.
+        INCOMPLETE_EXPIRED: Subscription is incomplete and expired.
+    """
+    ACTIVE = "active"
+    CANCELED = "canceled"
+    PAST_DUE = "past_due"
+    PAUSED = "paused"
+    UNPAID = "unpaid"
+    TRIALING = "trialing"
+    INCOMPLETE = "incomplete"
+    INCOMPLETE_EXPIRED = "incomplete_expired"

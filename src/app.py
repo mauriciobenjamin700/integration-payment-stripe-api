@@ -1,10 +1,7 @@
-from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.services.payment import PaymentService
-from src.services.webhook import WebhookService
-from src.schemas.payment import CancelPaymentIntentResponse, PaymentIntentCreate, PaymentIntentResponse
-from src.schemas.customer import CustomerCreate, CustomerResponse
+from src.routes import payment_router, subscription_router
 
 app = FastAPI(
     title="Stripe Integration API",
@@ -21,41 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/payment-intents")
-async def create_payment_intent(data: PaymentIntentCreate) -> PaymentIntentResponse:
-    """Create a payment intent."""
-    try:
-        result = PaymentService.create_payment_intent(data)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+app.include_router(payment_router)
+app.include_router(subscription_router)
 
-@app.get("/payment-intents/{payment_intent_id}")
-async def get_payment_intent(payment_intent_id: str) -> PaymentIntentResponse:
-    """Retrieve a payment intent."""
-    try:
-        result = PaymentService.retrieve_payment_intent(payment_intent_id)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    
-@app.get("/payment-intents/user/{user_id}")
-async def get_payment_intent_by_user_id(user_id: str, limit: int = 1) -> list[PaymentIntentResponse]:
-    """Retrieve payment intents by user ID."""
-    try:
-        result = PaymentService.get_payment_intent_by_user_id(user_id, limit)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-@app.post("/payment-intents/{payment_intent_id}/cancel")
-async def cancel_payment_intent(payment_intent_id: str) -> CancelPaymentIntentResponse:
-    """Cancel a payment intent."""
-    try:
-        result = PaymentService.cancel_payment_intent(payment_intent_id)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/")
 async def health_check():

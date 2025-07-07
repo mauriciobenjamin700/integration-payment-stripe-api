@@ -31,7 +31,6 @@ class PaymentIntentCreate(BaseSchema):
     }
     metadata: CustomerMetadata | None = None
 
-
 class PaymentIntentResponse(BaseSchema):
     """
     Schema for the response of a payment intent creation.
@@ -51,7 +50,6 @@ class PaymentIntentResponse(BaseSchema):
     currency: CurrencyEnum
     metadata: CustomerMetadata | None = None
     created: int
-
 
 class CancelPaymentIntentResponse(BaseSchema):
     """

@@ -31,6 +31,17 @@ class Shipping(BaseSchema):
     name: str
 
 
+class Metadata(BaseSchema):
+    """
+    Metadata schema for customer information.
+
+    Attributes:
+        user_id (str): The unique identifier of the user.
+    """
+    user_id: str
+
+
+
 class CustomerCreate(BaseSchema):
     """
     CustomerCreate schema for creating a new customer.
@@ -45,6 +56,7 @@ class CustomerCreate(BaseSchema):
     name:str
     shipping: Shipping
     address: Address
+    metadata: Metadata | None = None
 
 
 class CustomerResponse(BaseSchema):
@@ -63,3 +75,4 @@ class CustomerResponse(BaseSchema):
     name: str
     shipping: Shipping
     address: Address
+    metadata: Metadata | None = None

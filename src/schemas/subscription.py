@@ -17,7 +17,6 @@ class SubscriptionCreate(BaseSchema):
     Attributes:
         customer_id (str): The unique identifier of the customer.
         price_id (str): The unique identifier of the price to subscribe to.
-        user_id (int | None): The unique identifier of the user, optional.
         trial_period_days (int | None): The number of trial period days, optional.
         metadata (dict[str, str] | None): Additional metadata for the subscription.
     """
@@ -50,7 +49,7 @@ class SubscriptionResponse(BaseSchema):
     status: SubscriptionStatus
     customer: str
     start_date: int
-    ended_at: int
+    ended_at: int | None = None
     price_id: str
     amount: int
     currency: str

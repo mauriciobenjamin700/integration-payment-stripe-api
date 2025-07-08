@@ -20,14 +20,7 @@ async def create_product(data: ProductCreate) -> ProductResponse:
         return SubscriptionService.create_product(data)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-@router.post("/prices")
-async def create_price(data: PriceCreate) -> ProductResponse:
-    """Criar um preço para um produto."""
-    try:
-        return SubscriptionService.create_price(data)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    
 
 @router.get("/products")
 async def list_products(
@@ -38,14 +31,36 @@ async def list_products(
         return SubscriptionService.list_products(include_archived)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+    
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: str) -> ProductResponse:
+    """Arquivar um produto."""
+    try:
+        return SubscriptionService.delete_product(product_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/prices")
+async def create_price(data: PriceCreate) -> ProductResponse:
+    """Criar um preço para um produto."""
+    try:
+        return SubscriptionService.create_price(data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.delete("/prices/{price_id}")
+async def delete_price(price_id: str) -> dict:
+    """Arquivar um preço."""
+    try:
+        return SubscriptionService.delete_price(price_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/")
 async def create_subscription(data: SubscriptionCreate) -> SubscriptionResponse:
     """Criar uma assinatura."""
-    try:
-        return SubscriptionService.create_subscription(data)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return SubscriptionService.create_subscription(data)
 
 @router.get("/users/{user_id}")
 async def get_user_subscriptions(user_id: str) -> list[SubscriptionResponse]:

@@ -86,7 +86,7 @@ class SubscriptionService:
             raise Exception(f"Error creating price: {str(e)}")
         
     @staticmethod
-    def delete_price(price_id: str) -> None:
+    def delete_price(price_id: str) -> dict:
         """Delete a price by its ID.
         
         Args:
@@ -115,22 +115,23 @@ class SubscriptionService:
         Returns:
             SubscriptionResponse: The created subscription response.
         """
-        try:
-            subscription = stripe.Subscription.create(
-                customer=data.customer_id,
-                items=[{'price': data.price_id}],
-                trial_period_days=data.trial_period_days,
-                metadata=data.metadata.model_dump() if data.metadata else {},
-                payment_behavior='default_incomplete',
-                payment_settings={'save_default_payment_method': 'on_subscription'},
-                expand=['latest_invoice.payment_intent']
-            )
-        
-            return SubscriptionService.map_subscription_to_response(subscription)
+
+        metadata = data.metadata.to_dict() if data.metadata else {}
             
-        except Exception as e:
-            raise Exception(f"Error creating subscription: {str(e)}")
+        subscription = stripe.Subscription.create(
+            customer=data.customer_id,
+            items=[{'price': data.price_id}],
+            trial_period_days=data.trial_period_days,
+            metadata=metadata,
+            payment_behavior='default_incomplete',
+            payment_settings={'save_default_payment_method': 'on_subscription'},
+            expand=['latest_invoice.payment_intent']
+        )
+
     
+        return SubscriptionService.map_subscription_to_response(subscription)
+
+
     @staticmethod
     def get_user_subscriptions(user_id: str) -> list[SubscriptionResponse]:
         """Get all subscriptions for a user.
@@ -250,7 +251,6 @@ class SubscriptionService:
             )
         )
     
-
     @staticmethod
     def map_subscription_to_response(subscription: stripe.Subscription) -> SubscriptionResponse:
         """
@@ -261,22 +261,24 @@ class SubscriptionService:
 
         Returns:
             SubscriptionResponse: The mapped SubscriptionResponse schema.
-        """
+        """ 
+        first_item = subscription["items"]["data"][0]
+        
         return SubscriptionResponse(
             id=subscription.id,
             status=subscription.status,
             customer=subscription.customer,
             start_date=subscription.start_date,
             ended_at=subscription.ended_at,
-            price_id=subscription.items.data[0].price.id,
-            amount=subscription.items.data[0].price.unit_amount,
-            currency=subscription.items.data[0].price.currency,
+            price_id=first_item.price.id,
+            amount=first_item.price.unit_amount,
+            currency=first_item.price.currency,
             interval=(
-                subscription.items.data[0].price.recurring.interval 
-                if subscription.items.data[0].price.recurring 
-                else None,
+                first_item.price.recurring.interval 
+                if first_item.price.recurring 
+                else None
             ),
             trial_start=subscription.trial_start,
             trial_end=subscription.trial_end,
-            metadata=dict(subscription.metadata) if subscription.metadata else None
+            metadata=dict(subscription.metadata) if subscription.metadata else {}
         )

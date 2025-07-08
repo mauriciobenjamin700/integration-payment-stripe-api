@@ -15,10 +15,10 @@ class WebhookService:
                 settings.webhook_secret
             )
             return event
-        except ValueError as e:
+        except ValueError:
             # Invalid payload
             raise Exception("Invalid payload")
-        except stripe.error.SignatureVerificationError as e:
+        except stripe.error.SignatureVerificationError:
             # Invalid signature
             raise Exception("Invalid signature")
     

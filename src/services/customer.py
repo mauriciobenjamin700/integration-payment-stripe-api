@@ -150,7 +150,7 @@ class CustomerService:
             print(f"Error deleting customer: {str(e)}")
             raise HTTPException(
                 status_code=404,
-                detail=f"User not found"
+                detail="User not found"
             )
     
     @staticmethod
